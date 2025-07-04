@@ -14,7 +14,7 @@ var menu = map[string]func(*account.VaultWithDB){
 	"1": createAccount,
 	"2": findAccountByUrl,
 	"3": findAccountByLogin,
-	"4": deleteAccountm,
+	"4": deleteAccount,
 }
 
 func promptData[T any](prompt []T) string {
@@ -48,13 +48,7 @@ func findAccountByUrl(vault *account.VaultWithDB) {
 		return strings.Contains(acc.Url, str)
 	})
 
-	if len(accs) == 0 {
-		output.PrintError("Аккаунт не найден \n")
-	}
-
-	for _, v := range accs {
-		v.Output()
-	}
+	outputResult(&accs)
 }
 
 func findAccountByLogin(vault *account.VaultWithDB) {
@@ -62,12 +56,15 @@ func findAccountByLogin(vault *account.VaultWithDB) {
 	accs := vault.FindAccount(login, func(acc account.Account, str string) bool {
 		return strings.Contains(acc.Login, str)
 	})
+	outputResult(&accs)
+}
 
-	if len(accs) == 0 {
+func outputResult(accounts *[]account.Account) {
+	if len(*accounts) == 0 {
 		output.PrintError("Аккаунт не найден \n")
 	}
 
-	for _, v := range accs {
+	for _, v := range *accounts {
 		v.Output()
 	}
 }
@@ -89,14 +86,14 @@ func main() {
 	// vault := account.NewVault(cloud.NewCloudDb("https://a.ru"))
 Menu:
 	for {
-		variant := promptData([]string{"1. Создать аккаунт", "2. Найти аккаунт по URL", "3. Найти аккаунт по логину", "4. Удалить аккаунт", "5. Выход" "Выберите вариант"})
+		variant := promptData([]string{"1. Создать аккаунт", "2. Найти аккаунт по URL", "3. Найти аккаунт по логину", "4. Удалить аккаунт", "5. Выход", "Выберите вариант"})
 		switch variant {
 		case "1":
 			createAccount(vault)
 		case "2":
-			findAccount(vault)
+			findAccountByUrl(vault)
 		case "3":
-			findAccount(vault)
+			findAccountByLogin(vault)
 		case "4":
 			deleteAccount(vault)
 		default:
